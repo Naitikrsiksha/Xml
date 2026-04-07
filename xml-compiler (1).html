@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>XML Compiler</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script defer src="app.js"></script>
+</head>
+<body data-page="compiler">
+  <div class="app">
+    <div class="header">
+      <div class="brand">
+        <div class="brand-mark">⚙️</div>
+        <div>
+          <h1>XML Compiler</h1>
+          <p>Parse, validate, inspect, and copy clean raw XML</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <a class="nav-pill" href="index.html">Vector Tool</a>
+        <button class="btn dark" id="sampleBtn">Load Sample</button>
+        <button class="btn danger" id="clearBtn">Clear</button>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr;gap:16px;margin-top:16px">
+      <section class="compiler-card" style="padding:16px">
+        <div class="section-title">
+          <h2>Editor</h2>
+          <span id="fileTag">untitled.xml</span>
+        </div>
+        <textarea id="xmlInput" class="codebox" style="min-height:280px" spellcheck="false" placeholder="Paste XML here, then press Ctrl+Enter or Compile."></textarea>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px">
+          <button id="compileBtn" class="btn primary">▶ Compile</button>
+          <span class="small-note">Ctrl+Enter supported</span>
+        </div>
+        <div id="stats" class="stats"></div>
+      </section>
+
+      <section class="compiler-card" style="padding:0">
+        <div class="modal-header" style="border-bottom:1px solid var(--border)">
+          <h3>Output</h3>
+          <div class="compiler-tabs">
+            <button class="tab-btn active" data-tab="preview">Preview</button>
+            <button class="tab-btn" data-tab="tree">Tree</button>
+            <button class="tab-btn" data-tab="attrs">Attributes</button>
+            <button class="tab-btn" data-tab="formatted">Formatted</button>
+            <button id="copyRawBtn" class="btn dark">Copy Code</button>
+          </div>
+        </div>
+        <div id="output" class="compiler-output" style="display:none">
+          <div id="previewPane" class="panel" data-panel="preview"></div>
+          <div id="treePane" class="panel hidden" data-panel="tree"></div>
+          <div id="attrsPane" class="panel hidden" data-panel="attrs"></div>
+          <div id="formattedPane" class="panel hidden" data-panel="formatted"></div>
+          <pre id="rawPreview" class="codebox" style="display:none"></pre>
+          <div id="errorsPane" class="panel" style="border-top:1px solid var(--border)"></div>
+        </div>
+      </section>
+    </div>
+  </div>
+</body>
+</html>
