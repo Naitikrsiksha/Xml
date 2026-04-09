@@ -1,157 +1,218 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Vector Drawing & Coordinate Extraction Tool</title>
-  <link rel="stylesheet" href="styles.css" />
-  <script src="https://cdn.jsdelivr.net/npm/opentype.js@1.3.4/dist/opentype.min.js"></script>
-  <script defer src="app.js"></script>
+  <title>Vector & Drawing Suite</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+  <style>
+    /* ===== VARIABLES (Matching your theme) ===== */
+    :root {
+      --bg: #0f0f1a;
+      --surface: #1a1a2e;
+      --surface2: #222238;
+      --border: #2e2e4a;
+      --primary: #38bdf8;
+      --primary-hover: #0ea5e9;
+      --success: #22c55e;
+      --text: #e2e8f0;
+      --text-muted: #94a3b8;
+      --radius: 12px;
+      --transition: 0.2s ease;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    /* ===== HEADER ===== */
+    header {
+      position: absolute;
+      top: 0;
+      width: 100%;
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .logo i { font-size: 24px; }
+
+    /* ===== HERO SECTION ===== */
+    .hero {
+      text-align: center;
+      margin-bottom: 50px;
+      max-width: 600px;
+    }
+
+    .hero h1 {
+      font-size: 36px;
+      margin-bottom: 15px;
+      background: linear-gradient(135deg, #38bdf8, #a855f7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero p {
+      font-size: 16px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* ===== CARDS CONTAINER ===== */
+    .cards-container {
+      display: flex;
+      gap: 30px;
+      flex-wrap: wrap;
+      justify-content: center;
+      max-width: 900px;
+    }
+
+    /* ===== CARD STYLE ===== */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px;
+      width: 340px;
+      text-align: center;
+      text-decoration: none;
+      color: var(--text);
+      transition: all var(--transition);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      border-color: var(--primary);
+      box-shadow: 0 15px 40px rgba(56, 189, 248, 0.15);
+    }
+
+    .card-icon {
+      width: 70px;
+      height: 70px;
+      background: var(--surface2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+      color: var(--primary);
+      margin-bottom: 20px;
+      transition: all var(--transition);
+    }
+
+    .card:hover .card-icon {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .card h2 {
+      font-size: 22px;
+      margin-bottom: 10px;
+    }
+
+    .card p {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 25px;
+      line-height: 1.5;
+    }
+
+    .card-btn {
+      margin-top: auto;
+      background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+      color: #fff;
+      padding: 10px 24px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 14px;
+      width: 100%;
+      transition: opacity var(--transition);
+    }
+
+    .card:hover .card-btn {
+      opacity: 0.9;
+    }
+
+    .card.xml-card .card-btn {
+      background: linear-gradient(135deg, #7c3aed, #4f46e5);
+    }
+    
+    .card.xml-card:hover {
+      border-color: #a855f7;
+      box-shadow: 0 15px 40px rgba(168, 85, 247, 0.15);
+    }
+    
+    .card.xml-card:hover .card-icon {
+      background: #a855f7;
+    }
+
+    /* ===== FOOTER ===== */
+    footer {
+      position: absolute;
+      bottom: 20px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+  </style>
 </head>
-<body data-page="draw">
-  <div class="app">
-    <div class="header">
-      <div class="brand">
-        <div class="brand-mark">✦</div>
-        <div>
-          <h1>Vector Drawing & Coordinate Extraction Tool</h1>
-          <p>Freehand, shapes, text-to-path, graph overlay, XML export</p>
-        </div>
-      </div>
-      <div class="header-actions">
-        <a class="nav-pill" href="xml-compiler.html">XML Compiler</a>
-        <button class="btn dark" id="undoBtn">↶ Undo</button>
-        <button class="btn dark" id="redoBtn">↷ Redo</button>
-        <button class="btn primary" id="runBtn">▶ Run / Generate XML</button>
-      </div>
+<body>
+
+  <header>
+    <div class="logo">
+      <i class="fas fa-layer-group"></i>
+      <span>Vector Suite</span>
     </div>
+  </header>
 
-    <div class="main-grid">
-      <aside class="sidebar">
-        <div>
-          <div class="section-title">
-            <h2>Tools</h2>
-            <span>Keyboard: <span class="kbd">Ctrl+Z</span> / <span class="kbd">Ctrl+Y</span></span>
-          </div>
-          <div class="tool-grid">
-            <button class="tool-btn" data-tool="pen"><span class="ico">✎</span>Pencil<br><small>Freehand vector</small></button>
-            <button class="tool-btn" data-tool="rect"><span class="ico">▭</span>Rectangle<br><small>Path vertices</small></button>
-            <button class="tool-btn" data-tool="triangle"><span class="ico">△</span>Triangle<br><small>3-node shape</small></button>
-            <button class="tool-btn" data-tool="circle"><span class="ico">◯</span>Circle<br><small>Vector ellipse</small></button>
-            <button class="tool-btn" data-tool="text"><span class="ico">T</span>Text Tool<br><small>Path text</small></button>
-          </div>
-        </div>
-
-        <div>
-          <div class="section-title"><h2>Style</h2><span>Clean output</span></div>
-          <div class="control-row">
-            <div class="control">
-              <label>Stroke Color</label>
-              <input id="strokeColor" type="color" value="#7c5cff" />
-            </div>
-            <div class="control">
-              <label>Fill Color</label>
-              <input id="fillColor" type="color" value="#2dd4bf" />
-            </div>
-          </div>
-          <div class="control-row">
-            <div class="control">
-              <label>Stroke Width: <span id="strokeWidthValue">3</span></label>
-              <input id="strokeWidth" type="range" min="1" max="20" value="3" />
-            </div>
-            <div class="control">
-              <label>Glow</label>
-              <div class="toggle-row"><span>Glow effect</span><input id="glowToggle" type="checkbox" /></div>
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <div class="section-title"><h2>Text Path</h2><span>OpenType</span></div>
-          <div class="control">
-            <label>Font</label>
-            <select id="fontSelect"></select>
-          </div>
-          <div class="control">
-            <label>Font Size: <span id="fontSizeValue">72</span></label>
-            <input id="fontSize" type="range" min="18" max="180" value="72" />
-          </div>
-        </div>
-
-        <div>
-          <div class="section-title"><h2>View</h2><span>Graph paper</span></div>
-          <label class="toggle-row" style="margin-bottom:10px;">
-            <span>Show Graph</span>
-            <input id="showGraph" type="checkbox" />
-          </label>
-          <div class="status-bar">
-            <span class="pill" id="statusBar">Ready</span>
-            <span class="pill" id="fileInfo">0 object(s)</span>
-          </div>
-        </div>
-
-        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:auto">
-          <button class="btn dark" id="clearBtn">🗑 Clear</button>
-          <button class="btn ghost" id="compilerBtn">XML Compiler</button>
-        </div>
-      </aside>
-
-      <section class="stage-card">
-        <div class="stage-top">
-          <div>
-            <strong>Canvas</strong>
-            <div class="meta">Store vector objects as coordinate segments, not pixels.</div>
-          </div>
-          <div class="meta">Tap <span class="kbd">Text Tool</span>, click canvas, type, press Enter.</div>
-        </div>
-        <div class="canvas-wrap">
-          <canvas id="drawCanvas"></canvas>
-          <div id="floatingTextBox" class="text-input-floating">
-            <textarea id="floatingTextInput" rows="3" placeholder="Type text..."></textarea>
-            <div class="row">
-              <button id="textDone" class="btn primary small" type="button">Insert</button>
-              <button id="textCancel" class="btn dark small" type="button">Cancel</button>
-            </div>
-          </div>
-        </div>
-      </section>
-    </div>
+  <div class="hero">
+    <h1>Welcome to Vector Suite</h1>
+    <p>A powerful collection of web-based tools for drawing, tracing, and generating Android Vector Drawable XML files directly from your browser.</p>
   </div>
 
-  <div id="xmlModal" class="modal-backdrop">
-    <div class="modal">
-      <div class="modal-header">
-        <h3>Generate Android Vector XML</h3>
-        <button id="xmlModalClose" class="btn dark small">✕ Close</button>
-      </div>
-      <div class="modal-body">
-        <div class="modal-grid" style="margin-bottom:14px;">
-          <div class="control">
-            <label>Output Width (dp)</label>
-            <input id="xmlSizeWidth" type="number" min="1" value="24" />
-          </div>
-          <div class="control">
-            <label>Output Height (dp)</label>
-            <input id="xmlSizeHeight" type="number" min="1" value="24" />
-          </div>
-        </div>
-        <div class="compiler-tabs">
-          <button class="tab-btn active" id="previewTab" data-tab="preview">XML Preview</button>
-          <button class="tab-btn" id="rawTab" data-tab="raw">Raw XML</button>
-          <button class="btn primary" id="xmlRunGenerate">Generate XML</button>
-          <button class="btn dark" id="xmlCopy">Copy Code</button>
-        </div>
-        <div class="compiler-output">
-          <div class="panel" id="previewPane" data-panel="preview">
-            <div class="small-note">Preview will show syntax highlighting, but copied text stays raw.</div>
-            <div id="xmlPreview" class="xml-preview" style="margin-top:12px;">Generate XML to see the output.</div>
-          </div>
-          <div class="panel hidden" id="rawPane" data-panel="raw">
-            <textarea id="xmlRaw" class="codebox" readonly placeholder="Raw XML appears here after generation."></textarea>
-          </div>
-        </div>
-      </div>
-    </div>
+  <div class="cards-container">
+    <a href="draw.html" class="card">
+      <div class="card-icon"><i class="fas fa-paint-brush"></i></div>
+      <h2>Drawing Tool</h2>
+      <p>A fully-featured canvas for freehand drawing, shapes, and text. Perfect for quick sketches with basic XML and image export capabilities.</p>
+      <div class="card-btn">Open Drawing Tool</div>
+    </a>
+
+    <a href="xml-tool.html" class="card xml-card">
+      <div class="card-icon"><i class="fas fa-code"></i></div>
+      <h2>XML Vector Tool</h2>
+      <p>Advanced vector tracking tool. Features text-to-path generation, coordinate dot-placement, and precise Android XML code generation.</p>
+      <div class="card-btn">Open XML Tool</div>
+    </a>
   </div>
+
+  <footer>
+    &copy; 2026 Vector Suite | Runs 100% locally in your browser.
+  </footer>
+
 </body>
 </html>
