@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>XML Vector Tool</title>
+  <link rel="stylesheet" href="xml-tool.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/opentype.js@1.3.4/dist/opentype.min.js"></script>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header id="app-header">
+    <div class="header-left">
+      <a href="index.html" class="header-icon-btn" title="Home"><i class="fas fa-home"></i></a>
+      <div class="logo"><i class="fas fa-code"></i><span>XML Vector Tool</span></div>
+    </div>
+
+    <div class="header-center">
+      <button id="btn-undo" class="header-btn" title="Undo (Ctrl+Z)"><i class="fas fa-undo"></i><span>Undo</span></button>
+      <button id="btn-redo" class="header-btn" title="Redo (Ctrl+Y)"><i class="fas fa-redo"></i><span>Redo</span></button>
+      <div class="h-sep"></div>
+      <button id="btn-graph" class="header-btn" title="Toggle coordinate graph view"><i class="fas fa-project-diagram"></i><span>Graph</span></button>
+      <button id="btn-close-path" class="header-btn primary" title="Close current path (adds Z)"><i class="fas fa-vector-square"></i><span>Close Z</span></button>
+      <div class="h-sep"></div>
+      <button id="btn-clear" class="header-btn danger" title="Clear all"><i class="fas fa-trash"></i><span>Clear</span></button>
+      <div class="h-sep"></div>
+      <label class="header-btn upload-label" title="Upload background image for tracing">
+        <i class="fas fa-image"></i><span>BG Image</span>
+        <input type="file" id="bg-upload" accept="image/*" hidden />
+      </label>
+      <button id="btn-remove-bg" class="header-btn" title="Remove background"><i class="fas fa-times"></i><span>Remove BG</span></button>
+      <div class="h-sep"></div>
+      <button id="btn-run" class="header-btn success" title="Generate Android Vector XML"><i class="fas fa-play"></i><span>Run / XML</span></button>
+    </div>
+
+    <div class="header-right">
+      <a href="draw.html" class="draw-nav-btn"><i class="fas fa-paint-brush"></i> Drawing Tool</a>
+    </div>
+  </header>
+
+  <!-- TEXT-TO-PATH TOOLBAR -->
+  <div id="text-toolbar">
+    <span class="tbar-label"><i class="fas fa-font"></i> Text → Path</span>
+    <input type="text" id="t2p-text" placeholder="Type text..." />
+    <select id="t2p-font">
+      <option value="https://fonts.gstatic.com/s/roboto/v30/KFOmCnqEu92Fr1Mu4mxK.woff" data-name="Roboto">Roboto</option>
+      <option value="https://fonts.gstatic.com/s/oswald/v49/TK3_WkUHHAIjg75cFRf3bXL8LICs1_FvsUZiZQ.woff" data-name="Oswald">Oswald Bold</option>
+      <option value="https://fonts.gstatic.com/s/dancingscript/v25/If2cXTr6YS-zF4S-kcSWSVi_sxjsohD9F50Ruu7BMSo3Sup5.woff" data-name="Dancing Script">Dancing Script</option>
+    </select>
+    <label>Size:<input type="number" id="t2p-size" value="72" min="10" max="400" /></label>
+    <input type="color" id="t2p-color" value="#38bdf8" title="Text color" />
+    <button id="btn-t2p-add" class="tbar-btn"><i class="fas fa-plus"></i> Add Path</button>
+    <span class="tbar-hint">Text becomes vector coordinates</span>
+  </div>
+
+  <!-- MAIN BODY -->
+  <div id="app-body">
+
+    <!-- LEFT TOOLBAR — same drawing tools as Drawing Tool -->
+    <aside id="toolbar">
+      <div class="tool-group-label">Draw</div>
+      <button class="tool-btn active" data-tool="pencil" title="Pencil (freehand)"><i class="fas fa-pencil-alt"></i><span>Pencil</span></button>
+      <button class="tool-btn" data-tool="brush" title="Brush"><i class="fas fa-paint-brush"></i><span>Brush</span></button>
+      <button class="tool-btn" data-tool="eraser" title="Eraser"><i class="fas fa-eraser"></i><span>Eraser</span></button>
+      <div class="tool-sep"></div>
+      <div class="tool-group-label">Shapes</div>
+      <button class="tool-btn" data-tool="line" title="Straight Line"><i class="fas fa-minus"></i><span>Line</span></button>
+      <button class="tool-btn" data-tool="rect" title="Rectangle"><i class="far fa-square"></i><span>Rect</span></button>
+      <button class="tool-btn" data-tool="circle" title="Circle / Ellipse"><i class="far fa-circle"></i><span>Circle</span></button>
+      <button class="tool-btn" data-tool="triangle" title="Triangle"><i class="fas fa-caret-up fa-lg"></i><span>Triangle</span></button>
+      <div class="tool-sep"></div>
+      <div class="tool-group-label">Other</div>
+      <button class="tool-btn" data-tool="fill" title="Bucket Fill"><i class="fas fa-fill-drip"></i><span>Fill</span></button>
+      <button class="tool-btn" data-tool="text" title="Text"><i class="fas fa-font"></i><span>Text</span></button>
+      <div class="tool-sep"></div>
+      <div class="tool-group-label">Vector</div>
+      <button class="tool-btn" data-tool="dot" title="Dot mode: place coordinate dots manually"><i class="fas fa-dot-circle"></i><span>Dots</span></button>
+    </aside>
+
+    <!-- CANVAS AREA -->
+    <main id="canvas-area">
+      <div id="canvas-wrapper">
+        <canvas id="bg-canvas"></canvas>
+        <canvas id="main-canvas"></canvas>
+        <canvas id="overlay-canvas"></canvas>
+        <div id="text-input-wrap" style="display:none;">
+          <input type="text" id="text-input" placeholder="Type and press Enter..." />
+        </div>
+      </div>
+      <div id="status-bar">
+        <span id="status-mode">Select a tool and draw — every stroke is tracked as a vector path</span>
+        <span id="status-paths">Paths: 0</span>
+        <span id="status-coords">X: — &nbsp; Y: —</span>
+      </div>
+    </main>
+
+    <!-- RIGHT PANEL -->
+    <aside id="right-panel">
+      <div class="panel-block">
+        <label class="panel-label">Stroke Color</label>
+        <div class="color-row">
+          <input type="color" id="stroke-color" value="#38bdf8" />
+          <span id="stroke-hex">#38bdf8</span>
+        </div>
+        <div class="swatches" id="stroke-swatches"></div>
+      </div>
+
+      <div class="panel-block">
+        <label class="panel-label">Fill Color</label>
+        <label class="toggle-label">
+          <input type="checkbox" id="use-fill" />
+          <span class="toggle-track"></span>
+          Use Fill
+        </label>
+        <div class="color-row">
+          <input type="color" id="fill-color" value="#1e3a5f" />
+          <span id="fill-hex">#1e3a5f</span>
+        </div>
+        <div class="swatches" id="fill-swatches"></div>
+      </div>
+
+      <div class="panel-block">
+        <label class="panel-label">Stroke Width: <b id="stroke-width-label">4</b>px</label>
+        <input type="range" id="stroke-width" class="slider" min="1" max="80" value="4" />
+      </div>
+
+      <div class="panel-block">
+        <label class="panel-label">Opacity: <b id="opacity-label">100</b>%</label>
+        <input type="range" id="opacity-slider" class="slider" min="1" max="100" value="100" />
+      </div>
+
+      <div class="panel-block" id="text-panel" style="display:none;">
+        <label class="panel-label">Font Size: <b id="font-size-label">24</b>px</label>
+        <input type="range" id="font-size" class="slider" min="8" max="200" value="24" />
+        <select id="font-family" class="panel-select" style="margin-top:6px;">
+          <option value="Arial">Arial</option>
+          <option value="Georgia">Georgia</option>
+          <option value="Courier New">Courier New</option>
+          <option value="Impact">Impact</option>
+        </select>
+      </div>
+
+      <div class="panel-block">
+        <label class="panel-label">Canvas Background</label>
+        <div class="color-row">
+          <input type="color" id="bg-color" value="#13131f" />
+          <button id="apply-bg-color" class="apply-btn">Apply</button>
+        </div>
+      </div>
+
+      <!-- Paths list summary -->
+      <div class="panel-block" style="flex:1; overflow:hidden; display:flex; flex-direction:column;">
+        <label class="panel-label">Recorded Paths (<span id="path-count">0</span>)</label>
+        <div id="paths-list"></div>
+        <button id="btn-delete-last" class="danger-btn" style="margin-top:6px;">
+          <i class="fas fa-trash-alt"></i> Delete Last Path
+        </button>
+      </div>
+    </aside>
+
+  </div>
+
+  <!-- COLOR PROMPT MODAL (Dot tool) -->
+  <div id="color-modal" class="modal-overlay" style="display:none;">
+    <div class="modal-box small-modal">
+      <h2><i class="fas fa-palette"></i> Shape Color</h2>
+      <p>Choose a fill color for this new dot-mode shape:</p>
+      <div class="color-preview-row">
+        <input type="color" id="modal-color-pick" value="#38bdf8" />
+        <input type="text" id="modal-color-hex" value="#38bdf8" maxlength="7" />
+      </div>
+      <div class="modal-swatches" id="modal-swatches"></div>
+      <div class="modal-actions">
+        <button id="modal-color-confirm" class="btn-primary">Start Shape</button>
+        <button id="modal-color-cancel" class="btn-secondary">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- XML OUTPUT MODAL -->
+  <div id="xml-modal" class="modal-overlay" style="display:none;">
+    <div class="modal-box large-modal">
+      <div class="modal-header">
+        <h2><i class="fas fa-code"></i> Android Vector Drawable XML</h2>
+        <button id="xml-modal-close" class="modal-close-btn"><i class="fas fa-times"></i></button>
+      </div>
+
+      <div class="size-row">
+        <label>Width (dp):<input type="number" id="out-width" value="800" min="8" max="4096" /></label>
+        <label>Height (dp):<input type="number" id="out-height" value="800" min="8" max="4096" /></label>
+        <button id="btn-regenerate" class="btn-secondary"><i class="fas fa-sync"></i> Regenerate</button>
+      </div>
+
+      <div id="xml-display" class="xml-display"></div>
+
+      <div class="modal-actions">
+        <button id="btn-copy-xml" class="btn-primary"><i class="fas fa-copy"></i> Copy Raw XML</button>
+        <div class="download-row">
+          <input type="text" id="xml-filename" value="vector_drawable" placeholder="filename..." class="filename-input" />
+          <button id="btn-download-xml" class="btn-secondary"><i class="fas fa-download"></i> Download .xml</button>
+        </div>
+        <span id="copy-toast" class="copy-toast" style="display:none;"><i class="fas fa-check"></i> Copied!</span>
+      </div>
+    </div>
+  </div>
+
+  <script src="xml-tool.js"></script>
+</body>
+</html>

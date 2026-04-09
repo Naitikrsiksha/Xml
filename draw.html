@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Drawing Tool</title>
+  <link rel="stylesheet" href="draw.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header id="app-header">
+    <div class="header-left">
+      <a href="index.html" class="header-icon-btn" title="Home"><i class="fas fa-home"></i></a>
+      <div class="logo"><i class="fas fa-paint-brush"></i><span>DrawTool</span></div>
+    </div>
+
+    <div class="header-center">
+      <button id="btn-undo" class="header-btn" title="Undo (Ctrl+Z)"><i class="fas fa-undo"></i><span>Undo</span></button>
+      <button id="btn-redo" class="header-btn" title="Redo (Ctrl+Y)"><i class="fas fa-redo"></i><span>Redo</span></button>
+      <div class="h-sep"></div>
+      <button id="btn-grid" class="header-btn" title="Toggle Grid"><i class="fas fa-border-all"></i><span>Grid</span></button>
+      <div class="h-sep"></div>
+      <button id="btn-download-png" class="header-btn" title="Download PNG"><i class="fas fa-download"></i><span>PNG</span></button>
+      <button id="btn-download-jpg" class="header-btn" title="Download JPG"><i class="fas fa-download"></i><span>JPG</span></button>
+      <div class="h-sep"></div>
+      <label class="header-btn upload-label" title="Upload Background Image">
+        <i class="fas fa-image"></i><span>BG Upload</span>
+        <input type="file" id="bg-upload" accept="image/*" hidden />
+      </label>
+      <button id="btn-remove-bg" class="header-btn danger" title="Remove Background"><i class="fas fa-times"></i><span>Remove BG</span></button>
+      <div class="h-sep"></div>
+      <button id="btn-clear" class="header-btn danger" title="Clear Canvas"><i class="fas fa-trash"></i><span>Clear</span></button>
+      <div class="h-sep"></div>
+      <button id="btn-export-xml" class="header-btn success" title="Export drawing as Android Vector XML"><i class="fas fa-code"></i><span>Export XML</span></button>
+    </div>
+
+    <div class="header-right">
+      <button id="btn-theme" class="header-icon-btn" title="Toggle Theme"><i class="fas fa-moon"></i></button>
+      <a href="xml-tool.html" class="xml-nav-btn"><i class="fas fa-code"></i> XML Tool</a>
+    </div>
+  </header>
+
+  <!-- MAIN BODY -->
+  <div id="app-body">
+
+    <!-- LEFT TOOLBAR -->
+    <aside id="toolbar">
+      <button class="tool-btn active" data-tool="pencil" title="Pencil"><i class="fas fa-pencil-alt"></i><span>Pencil</span></button>
+      <button class="tool-btn" data-tool="brush" title="Brush"><i class="fas fa-paint-brush"></i><span>Brush</span></button>
+      <button class="tool-btn" data-tool="eraser" title="Eraser"><i class="fas fa-eraser"></i><span>Eraser</span></button>
+      <div class="tool-sep"></div>
+      <button class="tool-btn" data-tool="line" title="Straight Line"><i class="fas fa-minus"></i><span>Line</span></button>
+      <button class="tool-btn" data-tool="rect" title="Rectangle"><i class="far fa-square"></i><span>Rect</span></button>
+      <button class="tool-btn" data-tool="circle" title="Circle / Ellipse"><i class="far fa-circle"></i><span>Circle</span></button>
+      <button class="tool-btn" data-tool="triangle" title="Triangle"><i class="fas fa-caret-up fa-lg"></i><span>Triangle</span></button>
+      <div class="tool-sep"></div>
+      <button class="tool-btn" data-tool="fill" title="Bucket Fill"><i class="fas fa-fill-drip"></i><span>Fill</span></button>
+      <button class="tool-btn" data-tool="text" title="Text"><i class="fas fa-font"></i><span>Text</span></button>
+    </aside>
+
+    <!-- CANVAS AREA -->
+    <main id="canvas-area">
+      <div id="canvas-wrapper">
+        <canvas id="bg-canvas"></canvas>
+        <canvas id="main-canvas"></canvas>
+        <canvas id="overlay-canvas"></canvas>
+        <div id="text-input-wrap" style="display:none;">
+          <input type="text" id="text-input" placeholder="Type and press Enter..." />
+        </div>
+      </div>
+    </main>
+
+    <!-- RIGHT PANEL -->
+    <aside id="right-panel">
+      <div class="panel-block">
+        <label class="panel-label">Stroke Color</label>
+        <div class="color-row">
+          <input type="color" id="stroke-color" value="#38bdf8" />
+          <span id="stroke-hex">#38bdf8</span>
+        </div>
+        <div class="swatches" id="stroke-swatches"></div>
+      </div>
+
+      <div class="panel-block">
+        <label class="panel-label">Fill Color</label>
+        <div class="fill-toggle-row">
+          <label class="toggle-label">
+            <input type="checkbox" id="use-fill" />
+            <span class="toggle-track"></span>
+            Use Fill
+          </label>
+        </div>
+        <div class="color-row">
+          <input type="color" id="fill-color" value="#1e3a5f" />
+          <span id="fill-hex">#1e3a5f</span>
+        </div>
+        <div class="swatches" id="fill-swatches"></div>
+      </div>
+
+      <div class="panel-block">
+        <label class="panel-label">Brush Size: <b id="brush-size-label">5</b>px</label>
+        <input type="range" id="brush-size" class="slider" min="1" max="100" value="5" />
+      </div>
+
+      <div class="panel-block">
+        <label class="panel-label">Opacity: <b id="opacity-label">100</b>%</label>
+        <input type="range" id="opacity-slider" class="slider" min="1" max="100" value="100" />
+      </div>
+
+      <div class="panel-block">
+        <label class="panel-label">Line Cap</label>
+        <select id="line-cap" class="panel-select">
+          <option value="round">Round</option>
+          <option value="butt">Butt</option>
+          <option value="square">Square</option>
+        </select>
+      </div>
+
+      <div class="panel-block" id="text-panel" style="display:none;">
+        <label class="panel-label">Font Size: <b id="font-size-label">24</b>px</label>
+        <input type="range" id="font-size" class="slider" min="8" max="200" value="24" />
+        <label class="panel-label" style="margin-top:8px;">Font Family</label>
+        <select id="font-family" class="panel-select">
+          <option value="Arial">Arial (Sans)</option>
+          <option value="Georgia">Georgia (Serif)</option>
+          <option value="Courier New">Courier New (Mono)</option>
+          <option value="Impact">Impact (Bold)</option>
+        </select>
+      </div>
+
+      <div class="panel-block">
+        <label class="panel-label">Canvas Background</label>
+        <div class="color-row">
+          <input type="color" id="bg-color" value="#1e1e2e" />
+          <button id="apply-bg-color" class="apply-btn">Apply</button>
+        </div>
+      </div>
+
+      <div class="panel-block" style="margin-top:auto;">
+        <label class="panel-label">Vector Paths: <b id="vp-count">0</b></label>
+        <button id="btn-panel-xml" class="apply-btn" style="width:100%;margin-top:4px;border-color:#22c55e;color:#22c55e;">
+          <i class="fas fa-code"></i> Export XML
+        </button>
+      </div>
+    </aside>
+  </div>
+
+  <!-- XML EXPORT MODAL -->
+  <div id="xml-modal" class="modal-overlay" style="display:none;">
+    <div class="modal-box-draw large-modal">
+      <div class="modal-header">
+        <h2><i class="fas fa-code" style="color:#38bdf8"></i> Export as Android Vector XML</h2>
+        <button id="xml-modal-close" class="modal-close-btn"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="size-row">
+        <label>Width (dp):<input type="number" id="out-width" value="800" min="8" max="4096" /></label>
+        <label>Height (dp):<input type="number" id="out-height" value="800" min="8" max="4096" /></label>
+        <button id="btn-regenerate" class="btn-secondary-draw"><i class="fas fa-sync"></i> Regenerate</button>
+      </div>
+      <div id="xml-display" class="xml-display-draw"></div>
+      <div class="modal-actions-draw">
+        <button id="btn-copy-xml" class="btn-primary-draw"><i class="fas fa-copy"></i> Copy Raw XML</button>
+        <div style="display:flex;gap:6px;align-items:center;">
+          <input type="text" id="xml-filename" value="vector_drawable" class="filename-input-draw" placeholder="filename..." />
+          <button id="btn-download-xml" class="btn-secondary-draw"><i class="fas fa-download"></i> Download .xml</button>
+        </div>
+        <span id="copy-toast" style="display:none;padding:5px 10px;border-radius:5px;background:rgba(34,197,94,0.15);border:1px solid #22c55e;color:#22c55e;font-size:11px;">
+          <i class="fas fa-check"></i> Copied!
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <script src="draw.js"></script>
+</body>
+</html>
